@@ -6,11 +6,12 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    exclude: ["**/index.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
       include: ["src/**/*.ts"],
-      exclude: ["src/index.ts"],
+      exclude: ["**/index.ts"],
       thresholds: {
         statements: 90,
         branches: 80,
