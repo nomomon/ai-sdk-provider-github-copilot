@@ -7,8 +7,8 @@
  * Run: npm run example:streaming
  */
 
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 import { streamText } from "ai";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
 
 async function main() {
   console.log("Streaming from GitHub Copilot...\n");

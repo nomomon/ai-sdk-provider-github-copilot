@@ -11,7 +11,7 @@ Follow the [Copilot CLI installation guide](https://github.com/github/copilot-sd
 ### 2. Add the provider
 
 ```bash
-npm install ai-sdk-provider-github-copilot ai@^6.0.0
+npm install @nomomon/ai-sdk-provider-github-copilot ai@^6.0.0
 ```
 
 ## Quick Start
@@ -20,7 +20,7 @@ npm install ai-sdk-provider-github-copilot ai@^6.0.0
 
 ```typescript
 import { generateText } from "ai";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 
 const { text } = await generateText({
   model: githubCopilot("gpt-5"),
@@ -34,7 +34,7 @@ console.log(text);
 
 ```typescript
 import { streamText } from "ai";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 
 const result = streamText({
   model: githubCopilot("gpt-5"),
@@ -61,7 +61,7 @@ Run `copilot models` to list available models in your environment.
 ### Provider settings
 
 ```typescript
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 
 const model = githubCopilot("gpt-5", {
   model: "claude-sonnet-4.5", // Override model
@@ -84,7 +84,7 @@ Pass tools via provider settings using Copilot's `defineTool`:
 ```typescript
 import { defineTool } from "@github/copilot-sdk";
 import { z } from "zod";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 
 const model = githubCopilot("gpt-5", {
   tools: [

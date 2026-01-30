@@ -11,8 +11,8 @@
  */
 
 import { defineTool } from "@github/copilot-sdk";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 import { streamText } from "ai";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
 import { z } from "zod";
 
 async function main() {

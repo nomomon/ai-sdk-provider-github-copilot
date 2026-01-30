@@ -1,5 +1,5 @@
 {
-  "name": "ai-sdk-provider-github-copilot",
+  "name": "@nomomon/ai-sdk-provider-github-copilot",
   "version": "0.1.0",
   "description": "AI SDK provider for GitHub Copilot - Use Copilot CLI via Vercel AI SDK",
   "keywords": [

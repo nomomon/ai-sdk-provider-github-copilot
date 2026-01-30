@@ -8,8 +8,8 @@
  * Run: npm run example:basic
  */
 
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 import { generateText } from "ai";
-import { githubCopilot } from "ai-sdk-provider-github-copilot";
 
 async function main() {
   console.log("Sending prompt to GitHub Copilot...\n");
