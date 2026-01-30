@@ -16,10 +16,7 @@ export type GitHubCopilotModelId = string;
  */
 export interface GitHubCopilotProvider extends ProviderV3 {
   (modelId: GitHubCopilotModelId, settings?: GitHubCopilotSettings): LanguageModelV3;
-  languageModel(
-    modelId: GitHubCopilotModelId,
-    settings?: GitHubCopilotSettings
-  ): LanguageModelV3;
+  languageModel(modelId: GitHubCopilotModelId, settings?: GitHubCopilotSettings): LanguageModelV3;
   chat(modelId: GitHubCopilotModelId, settings?: GitHubCopilotSettings): LanguageModelV3;
   /**
    * Get the underlying CopilotClient instance for advanced lifecycle management.
@@ -31,7 +28,7 @@ export interface GitHubCopilotProvider extends ProviderV3 {
  * Creates a GitHub Copilot provider instance.
  */
 export function createGitHubCopilot(
-  options: GitHubCopilotProviderOptions = {}
+  options: GitHubCopilotProviderOptions = {},
 ): GitHubCopilotProvider {
   let clientInstance: CopilotClient | null = null;
 
@@ -44,7 +41,7 @@ export function createGitHubCopilot(
 
   const createModel = (
     modelId: GitHubCopilotModelId,
-    settings: GitHubCopilotSettings = {}
+    settings: GitHubCopilotSettings = {},
   ): LanguageModelV3 => {
     const mergedSettings: GitHubCopilotSettings = {
       ...options.defaultSettings,
@@ -57,14 +54,9 @@ export function createGitHubCopilot(
     });
   };
 
-  const provider = function (
-    modelId: GitHubCopilotModelId,
-    settings?: GitHubCopilotSettings
-  ) {
+  const provider = function (modelId: GitHubCopilotModelId, settings?: GitHubCopilotSettings) {
     if (new.target) {
-      throw new Error(
-        "The GitHub Copilot model function cannot be called with the new keyword."
-      );
+      throw new Error("The GitHub Copilot model function cannot be called with the new keyword.");
     }
     return createModel(modelId, settings);
   };

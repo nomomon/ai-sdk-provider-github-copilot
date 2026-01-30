@@ -1,68 +1,71 @@
 {
-    "name": "ai-sdk-provider-github-copilot",
-    "version": "0.1.0",
-    "description": "AI SDK provider for GitHub Copilot - Use Copilot CLI via Vercel AI SDK",
-    "keywords": [
-        "ai-sdk",
-        "github-copilot",
-        "copilot-sdk",
-        "language-model",
-        "llm"
-    ],
-    "homepage": "https://github.com/nomomon/ai-sdk-provider-github-copilot",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/nomomon/ai-sdk-provider-github-copilot.git"
-    },
-    "license": "MIT",
-    "type": "module",
-    "sideEffects": false,
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-        "./package.json": "./package.json",
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
-        }
-    },
-    "files": [
-        "dist/**/*",
-        "README.md",
-        "LICENSE"
-    ],
-    "scripts": {
-        "build": "tsup",
-        "clean": "rm -rf dist",
-        "dev": "tsup --watch",
-        "lint": "eslint src",
-        "typecheck": "tsc --noEmit",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "example:basic": "npm run build && npx tsx examples/basic-usage.ts",
-        "example:streaming": "npm run build && npx tsx examples/streaming.ts",
-        "example:tools": "npm run build && npx tsx examples/tools.ts"
-    },
-    "dependencies": {
-        "@ai-sdk/provider": "^3.0.0",
-        "@ai-sdk/provider-utils": "^4.0.1",
-        "@github/copilot-sdk": "^0.1.20"
-    },
-    "devDependencies": {
-        "@types/node": "^20.17.24",
-        "ai": "^6.0.0",
-        "zod": "^4.0.0",
-        "eslint": "^9.0.0",
-        "tsup": "^8.5.0",
-        "typescript": "^5.6.0",
-        "vitest": "^3.2.0"
-    },
-    "peerDependencies": {
-        "ai": "^6.0.0"
-    },
-    "engines": {
-        "node": ">=18"
+  "name": "ai-sdk-provider-github-copilot",
+  "version": "0.1.0",
+  "description": "AI SDK provider for GitHub Copilot - Use Copilot CLI via Vercel AI SDK",
+  "keywords": [
+    "ai-sdk",
+    "github-copilot",
+    "copilot-sdk",
+    "language-model",
+    "llm"
+  ],
+  "homepage": "https://github.com/nomomon/ai-sdk-provider-github-copilot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nomomon/ai-sdk-provider-github-copilot.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "example:basic": "npm run build && npx tsx examples/basic-usage.ts",
+    "example:streaming": "npm run build && npx tsx examples/streaming.ts",
+    "example:tools": "npm run build && npx tsx examples/tools.ts",
+    "prepare": "lefthook install"
+  },
+  "dependencies": {
+    "@ai-sdk/provider": "^3.0.0",
+    "@ai-sdk/provider-utils": "^4.0.1",
+    "@github/copilot-sdk": "^0.1.20"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.13",
+    "@types/node": "^20.17.24",
+    "ai": "^6.0.0",
+    "lefthook": "2.0.16",
+    "tsup": "^8.5.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.0",
+    "zod": "^4.0.0"
+  },
+  "peerDependencies": {
+    "ai": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

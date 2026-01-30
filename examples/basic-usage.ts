@@ -12,17 +12,17 @@ import { generateText } from "ai";
 import { githubCopilot } from "ai-sdk-provider-github-copilot";
 
 async function main() {
-    console.log("Sending prompt to GitHub Copilot...\n");
+  console.log("Sending prompt to GitHub Copilot...\n");
 
-    const { text } = await generateText({
-        model: githubCopilot("gpt-4.1"),
-        prompt: "What is 2+2? Reply with just the number.",
-    });
+  const { text } = await generateText({
+    model: githubCopilot("gpt-4.1"),
+    prompt: "What is 2+2? Reply with just the number.",
+  });
 
-    console.log("Response:", text);
+  console.log("Response:", text);
 }
 
 main().catch((err) => {
-    console.error("Error:", err.message);
-    process.exit(1);
+  console.error("Error:", err.message);
+  process.exit(1);
 });

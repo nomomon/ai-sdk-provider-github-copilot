@@ -20,21 +20,17 @@ export interface ConvertedCopilotMessage {
  * Converts AI SDK prompt format to Copilot SDK message format.
  * Handles system prompts, user messages, assistant responses, and tool results.
  */
-export function convertToCopilotMessages(
-  prompt: LanguageModelV3Prompt
-): ConvertedCopilotMessage {
+export function convertToCopilotMessages(prompt: LanguageModelV3Prompt): ConvertedCopilotMessage {
   const messages: string[] = [];
   const warnings: string[] = [];
   let systemMessage: string | undefined;
-  const attachments: Array<{ type: "file" | "directory"; path: string; displayName?: string }> =
-    [];
+  const attachments: Array<{ type: "file" | "directory"; path: string; displayName?: string }> = [];
 
   for (const message of prompt) {
     switch (message.role) {
       case "system": {
         const content = message.content;
-        systemMessage =
-          typeof content === "string" ? content : extractTextFromParts(content);
+        systemMessage = typeof content === "string" ? content : extractTextFromParts(content);
         if (systemMessage?.trim()) {
           messages.push(`System: ${systemMessage}`);
         }
@@ -107,18 +103,15 @@ export function convertToCopilotMessages(
               resultStr = `[Execution denied${output.reason ? `: ${output.reason}` : ""}]`;
             } else if (output.type === "content") {
               resultStr = output.value
-                .filter(
-                  (p): p is { type: "text"; text: string } => p.type === "text"
-                )
+                .filter((p): p is { type: "text"; text: string } => p.type === "text")
                 .map((p) => p.text)
                 .join("\n");
             } else {
               resultStr = "[Unknown output type]";
             }
-            const isError =
-              output.type === "error-text" || output.type === "error-json";
+            const isError = output.type === "error-text" || output.type === "error-json";
             messages.push(
-              `Tool result (${part.toolName}): ${isError ? "Error: " : ""}${resultStr}`
+              `Tool result (${part.toolName}): ${isError ? "Error: " : ""}${resultStr}`,
             );
           }
         }
@@ -137,9 +130,7 @@ export function convertToCopilotMessages(
   };
 }
 
-function extractTextFromParts(
-  content: Array<{ type: string; text?: string }>
-): string {
+function extractTextFromParts(content: Array<{ type: string; text?: string }>): string {
   return content
     .filter((p): p is { type: "text"; text: string } => p.type === "text")
     .map((p) => p.text)

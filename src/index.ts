@@ -3,17 +3,17 @@
  * @module ai-sdk-provider-github-copilot
  */
 
-export { createGitHubCopilot, githubCopilot } from "./github-copilot-provider.js";
-export type {
-  GitHubCopilotProvider,
-  GitHubCopilotModelId,
-} from "./github-copilot-provider.js";
-export { GitHubCopilotLanguageModel } from "./github-copilot-language-model.js";
-export type { GitHubCopilotSettings, GitHubCopilotProviderOptions } from "./types.js";
 export {
-  createAuthenticationError,
   createAPICallError,
-  isAuthenticationError,
-  isAbortError,
+  createAuthenticationError,
   handleCopilotError,
+  isAbortError,
+  isAuthenticationError,
 } from "./errors.js";
+export { GitHubCopilotLanguageModel } from "./github-copilot-language-model.js";
+export type {
+  GitHubCopilotModelId,
+  GitHubCopilotProvider,
+} from "./github-copilot-provider.js";
+export { createGitHubCopilot, githubCopilot } from "./github-copilot-provider.js";
+export type { GitHubCopilotProviderOptions, GitHubCopilotSettings } from "./types.js";
