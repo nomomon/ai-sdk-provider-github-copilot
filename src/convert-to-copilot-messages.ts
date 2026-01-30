@@ -57,7 +57,7 @@ export function convertToCopilotMessages(prompt: LanguageModelV3Prompt): Convert
               } else if (fileInfo.warning) {
                 warnings.push(fileInfo.warning);
               }
-            } else if (part.type === "image") {
+            } else if ((part as { type?: string }).type === "image") {
               warnings.push(IMAGE_BASE64_WARNING);
             }
           }

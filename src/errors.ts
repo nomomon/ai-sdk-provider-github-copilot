@@ -65,7 +65,7 @@ export function isAbortError(error: unknown): boolean {
 /**
  * Handles Copilot SDK errors and maps them to AI SDK error types.
  */
-export function handleCopilotError(error: unknown, _context?: { promptExcerpt?: string }): never {
+export function handleCopilotError(error: unknown): never {
   if (isAbortError(error)) {
     throw error;
   }

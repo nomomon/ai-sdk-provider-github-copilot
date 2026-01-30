@@ -72,11 +72,3 @@ export interface GitHubCopilotProviderOptions {
    */
   clientOptions?: CopilotClientOptions;
 }
-
-/**
- * Session configuration passed to Copilot SDK createSession.
- */
-export type CopilotSessionConfig = Pick<
-  SessionConfig,
-  "model" | "sessionId" | "streaming" | "systemMessage" | "tools" | "provider" | "workingDirectory"
->;
