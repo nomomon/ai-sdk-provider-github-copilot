@@ -1,6 +1,15 @@
 # AI SDK Provider for GitHub Copilot
 
-Vercel AI SDK community provider for GitHub Copilot - use `streamText`, `generateText`, and related AI SDK APIs with GitHub Copilot as the backend model.
+[![Tests](https://img.shields.io/github/actions/workflow/status/nomomon/ai-sdk-provider-github-copilot/test.yml?branch=main&label=tests)](https://github.com/nomomon/ai-sdk-provider-github-copilot/actions)
+[![codecov](https://codecov.io/gh/nomomon/ai-sdk-provider-github-copilot/graph/badge.svg)](https://codecov.io/gh/nomomon/ai-sdk-provider-github-copilot)
+[![GitHub Packages](https://img.shields.io/badge/GitHub-Packages-blue?logo=github)](https://github.com/nomomon/ai-sdk-provider-github-copilot/pkgs/npm/ai-sdk-provider-github-copilot)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![Fully AI Generated](https://img.shields.io/badge/fully-AI%20generated-purple?logo=openai)](https://github.com/nomomon/ai-sdk-provider-github-copilot)
+
+Vercel AI SDK community provider for GitHub Copilot — use `streamText`, `generateText`, and related AI SDK APIs with GitHub Copilot as the backend model.
+
+---
 
 ## Installation
 
@@ -119,4 +128,4 @@ Tests live in `tests/` (not colocated with source) to keep the published `src/` 
 
 ## License
 
-MIT
+[MIT](LICENSE)
