@@ -1,3 +1,4 @@
+import type { CopilotClient } from "@github/copilot-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GitHubCopilotLanguageModel } from "@/github-copilot-language-model.js";
 
@@ -15,12 +16,13 @@ const mockClient = {
   createSession: vi.fn().mockResolvedValue(mockSession),
 };
 
-const getClient = vi.fn(() => mockClient);
+const getClientMock = vi.fn(() => mockClient);
+const getClient = getClientMock as unknown as () => CopilotClient;
 
 describe("GitHubCopilotLanguageModel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getClient.mockReturnValue(mockClient);
+    getClientMock.mockReturnValue(mockClient);
   });
 
   describe("constructor and properties", () => {
@@ -71,14 +73,15 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       const result = await model.doGenerate({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(result.content).toEqual([{ type: "text", text: "Hello from Copilot!" }]);
       expect(result.finishReason).toEqual({ unified: "stop", raw: undefined });
       expect(result.usage).toBeDefined();
       expect(result.warnings).toBeDefined();
-      expect(result.response.modelId).toBe("gpt-4");
+      expect(result.response).toBeDefined();
+      expect(result.response?.modelId).toBe("gpt-4");
     });
 
     it("calls client.start when not connected", async () => {
@@ -92,7 +95,7 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       await model.doGenerate({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(mockClient.start).toHaveBeenCalled();
@@ -110,7 +113,7 @@ describe("GitHubCopilotLanguageModel", () => {
       await model.doGenerate({
         prompt: [
           { role: "system", content: "You are helpful." },
-          { role: "user", content: "Hi" },
+          { role: "user", content: [{ type: "text", text: "Hi" }] },
         ],
       });
 
@@ -140,7 +143,7 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       const result = await model.doGenerate({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(result.usage.inputTokens.total).toBe(12); // 10 + 2
@@ -157,7 +160,7 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       const result = await model.doGenerate({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
         temperature: 0.7,
         topP: 0.9,
       });
@@ -178,7 +181,7 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       await model.doGenerate({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(mockSession.destroy).toHaveBeenCalled();
@@ -202,11 +205,12 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       const { stream, request } = await model.doStream({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(stream).toBeInstanceOf(ReadableStream);
-      expect(request.body).toEqual({
+      expect(request).toBeDefined();
+      expect(request?.body).toEqual({
         prompt: "User: Hi",
         attachments: undefined,
       });
@@ -225,7 +229,7 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       await model.doStream({
-        prompt: [{ role: "user", content: "Hi" }],
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
       });
 
       expect(mockClient.createSession).toHaveBeenCalledWith(
@@ -251,7 +255,7 @@ describe("GitHubCopilotLanguageModel", () => {
 
       await expect(
         model.doGenerate({
-          prompt: [{ role: "user", content: "Hi" }],
+          prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
           abortSignal: abortController.signal,
         }),
       ).rejects.toThrow(abortReason);
@@ -269,7 +273,7 @@ describe("GitHubCopilotLanguageModel", () => {
 
       await expect(
         model.doGenerate({
-          prompt: [{ role: "user", content: "Hi" }],
+          prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
         }),
       ).rejects.toThrow(APICallError);
     });

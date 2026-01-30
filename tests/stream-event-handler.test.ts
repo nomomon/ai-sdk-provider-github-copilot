@@ -1,3 +1,5 @@
+import type { LanguageModelV3StreamPart } from "@ai-sdk/provider";
+import type { CopilotSession, SessionEvent } from "@github/copilot-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createStreamEventHandler } from "@/stream-event-handler.js";
 
@@ -20,14 +22,14 @@ function createMockSession() {
   };
 }
 
-function makeEvent<T extends { type: string; data: object }>(type: T["type"], data: T["data"]): T {
+function makeEvent(type: string, data: object): SessionEvent {
   return {
     id: "evt-1",
     timestamp: new Date().toISOString(),
     parentId: null,
     type,
     data,
-  } as T;
+  } as SessionEvent;
 }
 
 describe("createStreamEventHandler", () => {
@@ -41,15 +43,16 @@ describe("createStreamEventHandler", () => {
 
   it("emits text-start and text-delta for assistant.message_delta", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
       makeEvent("assistant.message_delta", {
         messageId: "msg-1",
         deltaContent: "Hello",
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledTimes(2);
@@ -65,15 +68,16 @@ describe("createStreamEventHandler", () => {
 
   it("emits reasoning parts for assistant.reasoning_delta", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
       makeEvent("assistant.reasoning_delta", {
         reasoningId: "r-1",
         deltaContent: "Let me think...",
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledTimes(3);
@@ -93,8 +97,9 @@ describe("createStreamEventHandler", () => {
 
   it("emits text parts for assistant.message with content", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
@@ -102,7 +107,7 @@ describe("createStreamEventHandler", () => {
         messageId: "msg-1",
         content: "Full response",
         toolRequests: undefined,
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledTimes(3);
@@ -116,8 +121,9 @@ describe("createStreamEventHandler", () => {
 
   it("emits tool-call parts for assistant.message with toolRequests", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
@@ -131,7 +137,7 @@ describe("createStreamEventHandler", () => {
             arguments: { city: "SF" },
           },
         ],
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledTimes(4);
@@ -156,15 +162,16 @@ describe("createStreamEventHandler", () => {
 
   it("emits tool parts for tool.execution_start", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
       makeEvent("tool.execution_start", {
         toolCallId: "tc-2",
         toolName: "search",
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledTimes(3);
@@ -184,25 +191,26 @@ describe("createStreamEventHandler", () => {
 
   it("emits tool-result for tool.execution_complete after tool.execution_start", async () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
       makeEvent("tool.execution_start", {
         toolCallId: "tc-3",
         toolName: "fetch",
-      }) as never,
+      }),
     );
     controller.enqueued.length = 0;
-    controller.enqueue.mockClear();
+    (controller.enqueue as { mockClear: () => void }).mockClear();
 
     handler(
       makeEvent("tool.execution_complete", {
         toolCallId: "tc-3",
         success: true,
         result: { content: "Done" },
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledWith(
@@ -218,8 +226,9 @@ describe("createStreamEventHandler", () => {
 
   it("emits tool-result with error for failed tool.execution_complete", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
@@ -252,11 +261,12 @@ describe("createStreamEventHandler", () => {
 
   it("closes stream and destroys session on session.idle", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
-    handler(makeEvent("session.idle", {}) as never);
+    handler(makeEvent("session.idle", {}));
 
     expect(controller.enqueue).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -270,15 +280,16 @@ describe("createStreamEventHandler", () => {
 
   it("emits error and closes stream on session.error", () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
       makeEvent("session.error", {
         errorType: "ConnectionError",
         message: "Connection lost",
-      }) as never,
+      }),
     );
 
     expect(controller.enqueue).toHaveBeenCalledWith(
@@ -293,8 +304,9 @@ describe("createStreamEventHandler", () => {
 
   it("updates usage on assistant.usage and includes in finish", async () => {
     const handler = createStreamEventHandler({
-      controller: controller as never,
-      session: session as never,
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
     });
 
     handler(
@@ -302,12 +314,13 @@ describe("createStreamEventHandler", () => {
         inputTokens: 10,
         outputTokens: 5,
         cacheReadTokens: 2,
-      }) as never,
+      }),
     );
-    handler(makeEvent("session.idle", {}) as never);
+    handler(makeEvent("session.idle", {}));
 
     const finishCall = controller.enqueued.find(
-      (c: { type?: string }) => c && typeof c === "object" && "type" in c && c.type === "finish",
+      (c: unknown) =>
+        c && typeof c === "object" && "type" in c && (c as { type?: string }).type === "finish",
     );
     expect(finishCall).toBeDefined();
     expect(finishCall).toMatchObject({

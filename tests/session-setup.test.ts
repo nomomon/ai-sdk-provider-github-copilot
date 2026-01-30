@@ -1,3 +1,4 @@
+import type { LanguageModelV3Prompt } from "@ai-sdk/provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { prepareSession } from "@/session-setup.js";
 
@@ -23,9 +24,12 @@ describe("prepareSession", () => {
   });
 
   it("converts prompt via convertToCopilotMessages and returns prompt text", async () => {
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hello" }] },
+    ];
     const result = await prepareSession({
-      prompt: [{ role: "user", content: "Hello" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({ model: "gpt-4", streaming: false }),
       generateWarnings: () => [],
@@ -43,9 +47,12 @@ describe("prepareSession", () => {
       customKey: "value",
     }));
 
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
     await prepareSession({
-      prompt: [{ role: "user", content: "Hi" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: true,
       buildSessionConfig,
       generateWarnings: () => [],
@@ -65,9 +72,12 @@ describe("prepareSession", () => {
   it("calls client.start when not connected", async () => {
     mockClient.getState.mockReturnValue("disconnected");
 
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
     await prepareSession({
-      prompt: [{ role: "user", content: "Hi" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],
@@ -80,9 +90,12 @@ describe("prepareSession", () => {
   it("does not call client.start when already connected", async () => {
     mockClient.getState.mockReturnValue("connected");
 
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
     await prepareSession({
-      prompt: [{ role: "user", content: "Hi" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],
@@ -93,14 +106,21 @@ describe("prepareSession", () => {
   });
 
   it("merges generateWarnings with message warnings from convertToCopilotMessages", async () => {
+    const prompt: LanguageModelV3Prompt = [
+      {
+        role: "user",
+        content: [
+          {
+            type: "file",
+            data: "https://example.com/image.png",
+            mediaType: "image/png",
+          },
+        ],
+      },
+    ];
     const result = await prepareSession({
-      prompt: [
-        {
-          role: "user",
-          content: [{ type: "file", data: "https://example.com/image.png" }],
-        },
-      ],
-      options: { temperature: 0.7 },
+      prompt,
+      options: { prompt, temperature: 0.7 },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: (_opts) => [
@@ -115,12 +135,13 @@ describe("prepareSession", () => {
   });
 
   it("passes system message from prompt to createSession when present", async () => {
+    const prompt: LanguageModelV3Prompt = [
+      { role: "system", content: "You are helpful." },
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
     await prepareSession({
-      prompt: [
-        { role: "system", content: "You are helpful." },
-        { role: "user", content: "Hi" },
-      ],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],
@@ -136,10 +157,13 @@ describe("prepareSession", () => {
 
   it("uses systemMessageFromSettings when no system message in prompt", async () => {
     const systemMessageFromSettings = { mode: "replace" as const, content: "Default system" };
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
 
     await prepareSession({
-      prompt: [{ role: "user", content: "Hi" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],
@@ -155,17 +179,23 @@ describe("prepareSession", () => {
   });
 
   it("returns attachments when prompt has file attachments", async () => {
+    const prompt: LanguageModelV3Prompt = [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Review" },
+          {
+            type: "file",
+            data: "file:///tmp/foo.ts",
+            filename: "foo.ts",
+            mediaType: "text/plain",
+          },
+        ],
+      },
+    ];
     const result = await prepareSession({
-      prompt: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "Review" },
-            { type: "file", data: "file:///tmp/foo.ts", filename: "foo.ts" },
-          ],
-        },
-      ],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],
@@ -178,9 +208,12 @@ describe("prepareSession", () => {
   });
 
   it("returns session from client.createSession", async () => {
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+    ];
     const result = await prepareSession({
-      prompt: [{ role: "user", content: "Hi" }],
-      options: {},
+      prompt,
+      options: { prompt },
       streaming: false,
       buildSessionConfig: () => ({}),
       generateWarnings: () => [],

@@ -1,5 +1,6 @@
 import { NoSuchModelError } from "@ai-sdk/provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { GitHubCopilotLanguageModel } from "@/github-copilot-language-model.js";
 import { createGitHubCopilot, githubCopilot } from "@/github-copilot-provider.js";
 
 const mockCopilotClient = {
@@ -87,7 +88,7 @@ describe("createGitHubCopilot", () => {
     const provider = createGitHubCopilot({
       defaultSettings: { model: "gpt-4-default", sessionId: "sess-1" },
     });
-    const model = provider("gpt-4", { sessionId: "sess-2" });
+    const model = provider("gpt-4", { sessionId: "sess-2" }) as GitHubCopilotLanguageModel;
     expect(model.settings.model).toBe("gpt-4-default");
     expect(model.settings.sessionId).toBe("sess-2");
   });

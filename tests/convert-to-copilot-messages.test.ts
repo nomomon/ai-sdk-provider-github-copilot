@@ -4,7 +4,9 @@ import { convertToCopilotMessages } from "@/convert-to-copilot-messages.js";
 
 describe("convertToCopilotMessages", () => {
   it("converts a simple user message to prompt format", () => {
-    const prompt: LanguageModelV3Prompt = [{ role: "user", content: "Hello, world!" }];
+    const prompt: LanguageModelV3Prompt = [
+      { role: "user", content: [{ type: "text", text: "Hello, world!" }] },
+    ];
     const result = convertToCopilotMessages(prompt);
     expect(result.prompt).toBe("User: Hello, world!");
     expect(result.systemMessage).toBeUndefined();
@@ -15,7 +17,7 @@ describe("convertToCopilotMessages", () => {
   it("converts system + user messages", () => {
     const prompt: LanguageModelV3Prompt = [
       { role: "system", content: "You are a helpful assistant." },
-      { role: "user", content: "What is 2+2?" },
+      { role: "user", content: [{ type: "text", text: "What is 2+2?" }] },
     ];
     const result = convertToCopilotMessages(prompt);
     expect(result.prompt).toContain("System: You are a helpful assistant.");
@@ -25,9 +27,12 @@ describe("convertToCopilotMessages", () => {
 
   it("converts multi-turn conversation with assistant", () => {
     const prompt: LanguageModelV3Prompt = [
-      { role: "user", content: "Hi" },
-      { role: "assistant", content: "Hello! How can I help?" },
-      { role: "user", content: "Tell me a joke" },
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
+      {
+        role: "assistant",
+        content: [{ type: "text", text: "Hello! How can I help?" }],
+      },
+      { role: "user", content: [{ type: "text", text: "Tell me a joke" }] },
     ];
     const result = convertToCopilotMessages(prompt);
     expect(result.prompt).toContain("User: Hi");
@@ -59,6 +64,7 @@ describe("convertToCopilotMessages", () => {
             type: "file",
             data: "file:///tmp/example.ts",
             filename: "example.ts",
+            mediaType: "text/plain",
           },
         ],
       },
@@ -79,6 +85,7 @@ describe("convertToCopilotMessages", () => {
             type: "file",
             data: "/home/user/src/main.ts",
             filename: "main.ts",
+            mediaType: "text/plain",
           },
         ],
       },
@@ -95,7 +102,11 @@ describe("convertToCopilotMessages", () => {
         role: "user",
         content: [
           { type: "text", text: "Look at this" },
-          { type: "file", data: "https://example.com/image.png" },
+          {
+            type: "file",
+            data: "https://example.com/image.png",
+            mediaType: "image/png",
+          },
         ],
       },
     ];
@@ -107,12 +118,18 @@ describe("convertToCopilotMessages", () => {
   });
 
   it("adds warning for base64/image data URLs", () => {
-    const prompt: LanguageModelV3Prompt = [
+    const prompt = [
       {
-        role: "user",
-        content: [{ type: "image", image: new Uint8Array(), mimeType: "image/png" }],
+        role: "user" as const,
+        content: [
+          {
+            type: "file" as const,
+            data: "data:image/png;base64,iVBORw0KGgo=",
+            mediaType: "image/png",
+          },
+        ],
       },
-    ];
+    ] as LanguageModelV3Prompt;
     const result = convertToCopilotMessages(prompt);
     expect(result.warnings).toBeDefined();
     expect(result.warnings).toContain(
@@ -122,7 +139,7 @@ describe("convertToCopilotMessages", () => {
 
   it("converts tool results with text output", () => {
     const prompt: LanguageModelV3Prompt = [
-      { role: "user", content: "Get weather" },
+      { role: "user", content: [{ type: "text", text: "Get weather" }] },
       {
         role: "tool",
         content: [
@@ -227,13 +244,18 @@ describe("convertToCopilotMessages", () => {
             type: "file",
             data: "C:\\Users\\dev\\src\\main.ts",
             filename: "main.ts",
+            mediaType: "text/plain",
           },
         ],
       },
     ];
     const result = convertToCopilotMessages(prompt);
     expect(result.attachments).toEqual([
-      { type: "file", path: "C:\\Users\\dev\\src\\main.ts", displayName: "main.ts" },
+      {
+        type: "file",
+        path: "C:\\Users\\dev\\src\\main.ts",
+        displayName: "main.ts",
+      },
     ]);
   });
 
@@ -241,7 +263,13 @@ describe("convertToCopilotMessages", () => {
     const prompt: LanguageModelV3Prompt = [
       {
         role: "user",
-        content: [{ type: "file", data: "http://example.com/file.png" }],
+        content: [
+          {
+            type: "file",
+            data: "http://example.com/file.png",
+            mediaType: "image/png",
+          },
+        ],
       },
     ];
     const result = convertToCopilotMessages(prompt);
@@ -270,14 +298,14 @@ describe("convertToCopilotMessages", () => {
   it("handles empty system message", () => {
     const prompt: LanguageModelV3Prompt = [
       { role: "system", content: "   " },
-      { role: "user", content: "Hi" },
+      { role: "user", content: [{ type: "text", text: "Hi" }] },
     ];
     const result = convertToCopilotMessages(prompt);
     expect(result.systemMessage).toBeUndefined();
   });
 
   it("handles system message with content parts", () => {
-    const prompt: LanguageModelV3Prompt = [
+    const prompt = [
       {
         role: "system",
         content: [
@@ -285,7 +313,7 @@ describe("convertToCopilotMessages", () => {
           { type: "text", text: "Part two" },
         ],
       },
-    ];
+    ] as unknown as LanguageModelV3Prompt;
     const result = convertToCopilotMessages(prompt);
     expect(result.systemMessage).toBe("Part one\nPart two");
     expect(result.prompt).toContain("System: Part one\nPart two");
