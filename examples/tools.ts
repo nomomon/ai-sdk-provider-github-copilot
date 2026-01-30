@@ -7,26 +7,33 @@
  * Run: npm run example:tools
  */
 
+import { defineTool } from "@github/copilot-sdk";
 import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
-import { streamText, tool } from "ai";
-import { z } from "zod";
+import { streamText } from "ai";
 
 async function main() {
   console.log("Sending prompt with tools to GitHub Copilot...\n");
 
-  const get_weather = tool({
-    description: "Get the weather in a location",
-    inputSchema: z.object({
-      location: z.string().describe("The location to get the weather for"),
-    }),
-    execute: async ({ location }) => {
-      return { temperature: 72, conditions: "sunny" };
+  const getWeather = defineTool("get_weather", {
+    description: "Get the current weather for a city",
+    parameters: {
+      type: "object",
+      properties: {
+        city: { type: "string", description: "The city name" },
+      },
+      required: ["city"],
+    },
+    handler: async (args: { city: string }) => {
+      const { city } = args;
+      const conditions = ["sunny", "cloudy", "rainy", "partly cloudy"];
+      const temp = Math.floor(Math.random() * 10) + 20;
+      const condition = conditions[Math.floor(Math.random() * conditions.length)];
+      return { city, temperature: `${temp}°C`, condition };
     },
   });
 
   const result = streamText({
-    model: githubCopilot("gpt-4.1"),
-    tools: { get_weather },
+    model: githubCopilot("gpt-5-mini", { tools: [getWeather] }),
     prompt: "What's the weather like in San Francisco? Use the get_weather tool.",
   });
 

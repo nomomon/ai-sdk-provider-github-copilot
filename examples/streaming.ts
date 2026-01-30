@@ -14,7 +14,7 @@ async function main() {
   console.log("Streaming from GitHub Copilot...\n");
 
   const result = streamText({
-    model: githubCopilot("gpt-4.1"),
+    model: githubCopilot("gpt-5-mini"),
     prompt: "Tell me a very short joke in one sentence.",
   });
 

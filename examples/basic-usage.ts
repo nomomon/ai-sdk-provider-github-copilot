@@ -15,7 +15,7 @@ async function main() {
   console.log("Sending prompt to GitHub Copilot...\n");
 
   const { text } = await generateText({
-    model: githubCopilot("gpt-4.1"),
+    model: githubCopilot("gpt-5-mini"),
     prompt: "What is 2+2? Reply with just the number.",
   });
 
