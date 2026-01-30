@@ -159,7 +159,7 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
         throw options.abortSignal?.aborted ? options.abortSignal.reason : error;
       }
       handleCopilotError(error);
-      return undefined as never;
+      throw new Error("Unreachable: handleCopilotError always throws");
     } finally {
       removeAbortListener();
       try {

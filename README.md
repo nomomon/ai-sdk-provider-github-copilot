@@ -101,6 +101,10 @@ const model = githubCopilot("gpt-5", {
 });
 ```
 
+## Development
+
+Tests live in `tests/` (not colocated with source) to keep the published `src/` tree clean and to exclude test files from the build. Each source module has a corresponding `tests/*.test.ts` file. Run `npm test` or `npm run test:coverage` for coverage with thresholds.
+
 ## Limitations
 
 - **Requires Copilot CLI** - Must be installed and authenticated

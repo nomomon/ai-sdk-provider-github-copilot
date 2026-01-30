@@ -14,6 +14,44 @@ describe("convertToCopilotMessages", () => {
     expect(result.warnings).toBeUndefined();
   });
 
+  it("handles user message with string content", () => {
+    const prompt = [
+      { role: "user" as const, content: "Hello directly" },
+    ] as unknown as LanguageModelV3Prompt;
+    const result = convertToCopilotMessages(prompt);
+    expect(result.prompt).toBe("User: Hello directly");
+  });
+
+  it("handles assistant message with string content", () => {
+    const prompt = [
+      { role: "user" as const, content: [{ type: "text", text: "Hi" }] },
+      { role: "assistant" as const, content: "I am here to help" },
+    ] as unknown as LanguageModelV3Prompt;
+    const result = convertToCopilotMessages(prompt);
+    expect(result.prompt).toContain("User: Hi");
+    expect(result.prompt).toContain("Assistant: I am here to help");
+  });
+
+  it("handles file part with non-string data returning no attachment", () => {
+    const prompt = [
+      {
+        role: "user" as const,
+        content: [
+          { type: "text" as const, text: "Review" },
+          {
+            type: "file" as const,
+            data: { invalid: "object" },
+            filename: "test.ts",
+            mediaType: "text/plain",
+          },
+        ],
+      },
+    ] as unknown as LanguageModelV3Prompt;
+    const result = convertToCopilotMessages(prompt);
+    expect(result.attachments).toBeUndefined();
+    expect(result.prompt).toContain("User: Review");
+  });
+
   it("converts system + user messages", () => {
     const prompt: LanguageModelV3Prompt = [
       { role: "system", content: "You are a helpful assistant." },

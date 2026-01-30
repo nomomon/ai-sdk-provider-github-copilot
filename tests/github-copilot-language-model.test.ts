@@ -326,6 +326,40 @@ describe("GitHubCopilotLanguageModel", () => {
       const { done } = await reader.read();
       expect(done).toBe(true);
     });
+
+    it("handles pre-aborted signal when doStream starts", async () => {
+      const abortController = new AbortController();
+      abortController.abort(new Error("Pre-aborted"));
+      mockSession.send.mockResolvedValue(undefined);
+      mockSession.on.mockImplementation((callback: (e: unknown) => void) => {
+        setTimeout(() => callback({ type: "session.idle" }), 0);
+      });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      const { stream } = await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        abortSignal: abortController.signal,
+      });
+
+      const reader = stream.getReader();
+      const chunks: unknown[] = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+      expect(chunks.length).toBeGreaterThan(0);
+      expect(
+        chunks.some(
+          (c) => c && typeof c === "object" && (c as { type?: string }).type === "stream-start",
+        ),
+      ).toBe(true);
+    });
   });
 
   describe("doGenerate error handling", () => {

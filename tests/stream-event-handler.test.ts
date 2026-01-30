@@ -302,6 +302,60 @@ describe("createStreamEventHandler", () => {
     expect(session.destroy).toHaveBeenCalled();
   });
 
+  it("uses Session error fallback when session.error has no message", () => {
+    const handler = createStreamEventHandler({
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
+    });
+
+    handler(makeEvent("session.error", { errorType: "UnknownError" }));
+
+    expect(controller.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "error",
+        error: expect.objectContaining({ message: "Session error" }),
+      }),
+    );
+    expect(controller.close).toHaveBeenCalled();
+  });
+
+  it("uses Tool execution failed when tool.execution_complete fails with no error message", () => {
+    const handler = createStreamEventHandler({
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
+    });
+
+    handler(
+      makeEvent("tool.execution_start", {
+        toolCallId: "tc-no-err",
+        toolName: "failing_tool",
+      }),
+    );
+    controller.enqueued.length = 0;
+    (controller.enqueue as { mockClear: () => void }).mockClear();
+
+    handler(
+      makeEvent("tool.execution_complete", {
+        toolCallId: "tc-no-err",
+        success: false,
+        result: undefined,
+        error: undefined,
+      }) as never,
+    );
+
+    expect(controller.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "tool-result",
+        toolCallId: "tc-no-err",
+        toolName: "failing_tool",
+        result: "Tool execution failed",
+        isError: true,
+      }),
+    );
+  });
+
   it("emits text-end before finish when textPartId was set by message_delta", () => {
     const handler = createStreamEventHandler({
       controller:
