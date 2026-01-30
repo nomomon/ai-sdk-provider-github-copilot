@@ -54,26 +54,28 @@ describe("createGitHubCopilot", () => {
 
   it("embeddingModel throws NoSuchModelError", () => {
     const provider = createGitHubCopilot();
-    expect(() => provider.embeddingModel("text-embedding-3")).toThrow(NoSuchModelError);
+    let err: unknown;
     try {
       provider.embeddingModel("text-embedding-3");
     } catch (e) {
-      expect(e).toBeInstanceOf(NoSuchModelError);
-      expect((e as NoSuchModelError).modelId).toBe("text-embedding-3");
-      expect((e as NoSuchModelError).modelType).toBe("embeddingModel");
+      err = e;
     }
+    expect(err).toBeInstanceOf(NoSuchModelError);
+    expect((err as NoSuchModelError).modelId).toBe("text-embedding-3");
+    expect((err as NoSuchModelError).modelType).toBe("embeddingModel");
   });
 
   it("imageModel throws NoSuchModelError", () => {
     const provider = createGitHubCopilot();
-    expect(() => provider.imageModel("dall-e-3")).toThrow(NoSuchModelError);
+    let err: unknown;
     try {
       provider.imageModel("dall-e-3");
     } catch (e) {
-      expect(e).toBeInstanceOf(NoSuchModelError);
-      expect((e as NoSuchModelError).modelId).toBe("dall-e-3");
-      expect((e as NoSuchModelError).modelType).toBe("imageModel");
+      err = e;
     }
+    expect(err).toBeInstanceOf(NoSuchModelError);
+    expect((err as NoSuchModelError).modelId).toBe("dall-e-3");
+    expect((err as NoSuchModelError).modelType).toBe("imageModel");
   });
 
   it("getClient returns CopilotClient instance", () => {
