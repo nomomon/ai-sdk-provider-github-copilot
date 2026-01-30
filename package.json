@@ -45,7 +45,8 @@
     "example:basic": "npm run build && npx tsx examples/basic-usage.ts",
     "example:streaming": "npm run build && npx tsx examples/streaming.ts",
     "example:tools": "npm run build && npx tsx examples/tools.ts",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@ai-sdk/provider": "^3.0.0",
