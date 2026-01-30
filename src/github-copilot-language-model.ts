@@ -10,6 +10,17 @@ import type {
 import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotClient } from "@github/copilot-sdk";
 import { handleCopilotError, isAbortError } from "./errors.js";
+
+/**
+ * Adds an abort listener to the signal and returns a cleanup function.
+ * Call the returned function to remove the listener (e.g. in finally).
+ */
+function addAbortListener(signal: AbortSignal | undefined, onAbort: () => void): () => void {
+  if (!signal) return () => {};
+  signal.addEventListener("abort", onAbort, { once: true });
+  return () => signal.removeEventListener("abort", onAbort);
+}
+
 import { mapCopilotFinishReason } from "./map-copilot-finish-reason.js";
 import { prepareSession } from "./session-setup.js";
 import { createStreamEventHandler } from "./stream-event-handler.js";
@@ -106,11 +117,7 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
       false,
     );
 
-    let abortListener: (() => void) | undefined;
-    if (options.abortSignal) {
-      abortListener = () => session.abort();
-      options.abortSignal.addEventListener("abort", abortListener, { once: true });
-    }
+    const removeAbortListener = addAbortListener(options.abortSignal, () => session.abort());
 
     try {
       const result = await session.sendAndWait(
@@ -151,9 +158,7 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
       handleCopilotError(error);
       return undefined as never;
     } finally {
-      if (options.abortSignal && abortListener) {
-        options.abortSignal.removeEventListener("abort", abortListener);
-      }
+      removeAbortListener();
       try {
         await session.destroy();
       } catch {
@@ -171,16 +176,13 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
     );
 
     const abortController = new AbortController();
-    let abortListener: (() => void) | undefined;
     if (options.abortSignal?.aborted) {
       abortController.abort(options.abortSignal.reason);
-    } else if (options.abortSignal) {
-      abortListener = () => {
-        session.abort();
-        abortController.abort(options.abortSignal?.reason);
-      };
-      options.abortSignal.addEventListener("abort", abortListener, { once: true });
     }
+    const removeAbortListener = addAbortListener(options.abortSignal, () => {
+      session.abort();
+      abortController.abort(options.abortSignal?.reason);
+    });
 
     const stream = new ReadableStream<LanguageModelV3StreamPart>({
       start: async (controller) => {
@@ -206,15 +208,11 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
           controller.close();
           await session.destroy();
         } finally {
-          if (options.abortSignal && abortListener) {
-            options.abortSignal.removeEventListener("abort", abortListener);
-          }
+          removeAbortListener();
         }
       },
       cancel: () => {
-        if (options.abortSignal && abortListener) {
-          options.abortSignal.removeEventListener("abort", abortListener);
-        }
+        removeAbortListener();
       },
     });
 
