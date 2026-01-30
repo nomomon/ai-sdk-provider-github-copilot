@@ -304,6 +304,41 @@ describe("convertToCopilotMessages", () => {
     expect(result.systemMessage).toBeUndefined();
   });
 
+  it("adds warning for image part in user content", () => {
+    const prompt = [
+      {
+        role: "user" as const,
+        content: [
+          { type: "text" as const, text: "Look at this" },
+          { type: "image" as const, image: "data:image/png;base64,abc", mimeType: "image/png" },
+        ],
+      },
+    ] as unknown as LanguageModelV3Prompt;
+    const result = convertToCopilotMessages(prompt);
+    expect(result.warnings).toBeDefined();
+    expect(result.warnings).toContain(
+      "Base64/image data URLs require file paths. Write to temp file and pass path, or use attachments with path.",
+    );
+  });
+
+  it("handles tool result with unknown output type", () => {
+    const prompt = [
+      {
+        role: "tool" as const,
+        content: [
+          {
+            type: "tool-result" as const,
+            toolName: "custom",
+            toolCallId: "call_1",
+            output: { type: "unknown" as const, value: null },
+          },
+        ],
+      },
+    ] as unknown as LanguageModelV3Prompt;
+    const result = convertToCopilotMessages(prompt);
+    expect(result.prompt).toContain("Tool result (custom): [Unknown output type]");
+  });
+
   it("handles system message with content parts", () => {
     const prompt = [
       {

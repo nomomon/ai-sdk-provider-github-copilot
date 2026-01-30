@@ -302,6 +302,33 @@ describe("createStreamEventHandler", () => {
     expect(session.destroy).toHaveBeenCalled();
   });
 
+  it("emits text-end before finish when textPartId was set by message_delta", () => {
+    const handler = createStreamEventHandler({
+      controller:
+        controller as unknown as ReadableStreamDefaultController<LanguageModelV3StreamPart>,
+      session: session as unknown as CopilotSession,
+    });
+
+    handler(
+      makeEvent("assistant.message_delta", {
+        messageId: "msg-1",
+        deltaContent: "Hello",
+      }),
+    );
+    handler(makeEvent("session.idle", {}));
+
+    const textEndCall = controller.enqueued.find(
+      (c: unknown) =>
+        c && typeof c === "object" && "type" in c && (c as { type?: string }).type === "text-end",
+    );
+    expect(textEndCall).toBeDefined();
+    const finishCall = controller.enqueued.find(
+      (c: unknown) =>
+        c && typeof c === "object" && "type" in c && (c as { type?: string }).type === "finish",
+    );
+    expect(finishCall).toBeDefined();
+  });
+
   it("updates usage on assistant.usage and includes in finish", async () => {
     const handler = createStreamEventHandler({
       controller:

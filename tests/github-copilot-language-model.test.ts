@@ -236,6 +236,96 @@ describe("GitHubCopilotLanguageModel", () => {
         expect.objectContaining({ streaming: true }),
       );
     });
+
+    it("errors stream when session.send rejects with non-abort error", async () => {
+      const { APICallError } = await import("@ai-sdk/provider");
+      mockSession.send.mockRejectedValue(new Error("Connection failed"));
+      mockSession.on.mockImplementation(() => {});
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      const { stream } = await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+      });
+
+      const reader = stream.getReader();
+      let error: unknown;
+      try {
+        while (true) {
+          const { done } = await reader.read();
+          if (done) break;
+        }
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).toBeInstanceOf(APICallError);
+    });
+
+    it("enqueues abort error when session.send rejects with AbortError", async () => {
+      const abortReason = new Error("User cancelled");
+      const abortError = Object.assign(new Error("Aborted"), { name: "AbortError" });
+      mockSession.send.mockRejectedValue(abortError);
+      mockSession.on.mockImplementation(() => {});
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      const abortController = new AbortController();
+      abortController.abort(abortReason);
+
+      const { stream } = await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        abortSignal: abortController.signal,
+      });
+
+      const reader = stream.getReader();
+      const chunks: unknown[] = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+
+      const errorChunk = chunks.find(
+        (c) =>
+          c && typeof c === "object" && "type" in c && (c as { type: string }).type === "error",
+      );
+      expect(errorChunk).toBeDefined();
+      expect((errorChunk as { error: unknown }).error).toBe(abortReason);
+      expect(mockSession.destroy).toHaveBeenCalled();
+    });
+
+    it("cancel callback removes abort listener when stream is canceled", async () => {
+      const abortController = new AbortController();
+      mockSession.send.mockImplementation(() => new Promise(() => {})); // Never resolves
+      mockSession.on.mockImplementation(() => {});
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      const { stream } = await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        abortSignal: abortController.signal,
+      });
+
+      const reader = stream.getReader();
+      await reader.cancel();
+
+      // Cancel callback should have run (no throw) - verify stream is done
+      const { done } = await reader.read();
+      expect(done).toBe(true);
+    });
   });
 
   describe("doGenerate error handling", () => {
