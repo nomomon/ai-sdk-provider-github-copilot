@@ -1,3 +1,10 @@
+/**
+ * Stream event handler for GitHub Copilot SDK.
+ *
+ * Listens to Copilot session events (message_delta, tool.execution_*, session.idle,
+ * etc.) and enqueues corresponding AI SDK stream parts (text-delta, tool-call,
+ * tool-result, finish) to the ReadableStream controller.
+ */
 import type { LanguageModelV3StreamPart, LanguageModelV3Usage } from "@ai-sdk/provider";
 import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotSession, SessionEvent } from "@github/copilot-sdk";

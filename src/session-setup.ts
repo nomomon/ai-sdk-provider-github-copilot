@@ -1,3 +1,10 @@
+/**
+ * Session setup for GitHub Copilot SDK.
+ *
+ * Orchestrates the flow: convert AI SDK prompt → build warnings → ensure client
+ * connected → create Copilot session with merged config. Used by both doGenerate
+ * and doStream in the language model.
+ */
 import type {
   LanguageModelV3CallOptions,
   LanguageModelV3Prompt,

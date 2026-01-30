@@ -1,3 +1,9 @@
+/**
+ * Token usage conversion for GitHub Copilot SDK.
+ *
+ * Maps Copilot usage events (inputTokens, outputTokens, cacheRead/Write) to
+ * AI SDK LanguageModelV3Usage format. Used by doGenerate and stream-event-handler.
+ */
 import type { LanguageModelV3Usage } from "@ai-sdk/provider";
 
 export interface CopilotUsageEvent {
@@ -25,7 +31,7 @@ export function convertCopilotUsage(event: CopilotUsageEvent): LanguageModelV3Us
   const inputTokens = event.inputTokens ?? 0;
   const outputTokens = event.outputTokens ?? 0;
   const cacheRead = event.cacheReadTokens ?? 0;
-  const cacheWrite = 0;
+  const cacheWrite = event.cacheWriteTokens ?? 0;
 
   return {
     inputTokens: {

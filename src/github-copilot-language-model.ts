@@ -86,18 +86,25 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
     return warnings;
   }
 
-  async doGenerate(
-    options: LanguageModelV3CallOptions,
-  ): Promise<Awaited<ReturnType<LanguageModelV3["doGenerate"]>>> {
-    const { prompt, attachments, warnings, session } = await prepareSession({
+  private async prepareSessionForCall(options: LanguageModelV3CallOptions, streaming: boolean) {
+    return prepareSession({
       prompt: options.prompt,
       options,
-      streaming: false,
+      streaming,
       buildSessionConfig: (s) => this.buildSessionConfig(s),
       generateWarnings: (o) => this.generateWarnings(o),
       getClient: this.getClient,
       systemMessageFromSettings: this.settings.systemMessage,
     });
+  }
+
+  async doGenerate(
+    options: LanguageModelV3CallOptions,
+  ): Promise<Awaited<ReturnType<LanguageModelV3["doGenerate"]>>> {
+    const { prompt, attachments, warnings, session } = await this.prepareSessionForCall(
+      options,
+      false,
+    );
 
     let abortListener: (() => void) | undefined;
     if (options.abortSignal) {
@@ -158,15 +165,10 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
   async doStream(
     options: LanguageModelV3CallOptions,
   ): Promise<Awaited<ReturnType<LanguageModelV3["doStream"]>>> {
-    const { prompt, attachments, warnings, session } = await prepareSession({
-      prompt: options.prompt,
+    const { prompt, attachments, warnings, session } = await this.prepareSessionForCall(
       options,
-      streaming: true,
-      buildSessionConfig: (s) => this.buildSessionConfig(s),
-      generateWarnings: (o) => this.generateWarnings(o),
-      getClient: this.getClient,
-      systemMessageFromSettings: this.settings.systemMessage,
-    });
+      true,
+    );
 
     const abortController = new AbortController();
     let abortListener: (() => void) | undefined;

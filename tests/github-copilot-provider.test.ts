@@ -1,6 +1,6 @@
 import { NoSuchModelError } from "@ai-sdk/provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createGitHubCopilot, githubCopilot } from "../src/github-copilot-provider.js";
+import { createGitHubCopilot, githubCopilot } from "@/github-copilot-provider.js";
 
 const mockCopilotClient = {
   getState: vi.fn().mockReturnValue("connected"),

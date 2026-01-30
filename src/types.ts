@@ -30,7 +30,7 @@ export interface GitHubCopilotSettings {
   /**
    * Custom tools exposed to the Copilot CLI.
    */
-  tools?: Tool<any>[];
+  tools?: Tool<unknown>[];
 
   /**
    * Custom provider configuration (BYOK - Bring Your Own Key).

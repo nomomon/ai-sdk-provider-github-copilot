@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createStreamEventHandler } from "../src/stream-event-handler.js";
+import { createStreamEventHandler } from "@/stream-event-handler.js";
 
 function createMockController() {
   const enqueued: unknown[] = [];

@@ -6,7 +6,7 @@ import {
   handleCopilotError,
   isAbortError,
   isAuthenticationError,
-} from "../src/errors.js";
+} from "@/errors.js";
 
 describe("createAuthenticationError", () => {
   it("creates LoadAPIKeyError with default message", () => {
