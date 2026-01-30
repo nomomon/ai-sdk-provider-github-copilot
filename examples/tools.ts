@@ -1,8 +1,5 @@
 /**
- * Tools example - using custom tools with GitHub Copilot
- *
- * Custom tools are passed via provider settings using Copilot's defineTool.
- * The Copilot CLI will invoke these handlers when the agent calls the tools.
+ * Tools example - using tools with GitHub Copilot
  *
  * Prerequisites:
  * - Copilot CLI installed and authenticated
@@ -10,32 +7,26 @@
  * Run: npm run example:tools
  */
 
-import { defineTool } from "@github/copilot-sdk";
 import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
-import { streamText } from "ai";
+import { streamText, tool } from "ai";
 import { z } from "zod";
 
 async function main() {
   console.log("Sending prompt with tools to GitHub Copilot...\n");
 
-  const result = streamText({
-    model: githubCopilot("gpt-5", {
-      tools: [
-        defineTool("get_weather", {
-          description: "Get the current weather for a location",
-          parameters: z.object({
-            location: z.string().describe("City name, e.g. San Francisco"),
-            unit: z.enum(["celsius", "fahrenheit"]).default("fahrenheit"),
-          }),
-          handler: async ({ location, unit }) => ({
-            location,
-            unit,
-            temperature: 72,
-            condition: "Partly cloudy",
-          }),
-        }),
-      ],
+  const get_weather = tool({
+    description: "Get the weather in a location",
+    inputSchema: z.object({
+      location: z.string().describe("The location to get the weather for"),
     }),
+    execute: async ({ location }) => {
+      return { temperature: 72, conditions: "sunny" };
+    },
+  });
+
+  const result = streamText({
+    model: githubCopilot("gpt-4.1"),
+    tools: { get_weather },
     prompt: "What's the weather like in San Francisco? Use the get_weather tool.",
   });
 
