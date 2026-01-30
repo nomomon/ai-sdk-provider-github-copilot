@@ -48,13 +48,7 @@ for await (const chunk of result.textStream) {
 
 ## Models
 
-Use model IDs available via Copilot CLI, for example:
-
-- `gpt-5` - GPT-5 (when available)
-- `claude-sonnet-4.5` - Claude Sonnet
-- `claude-opus-4` - Claude Opus
-
-Run `copilot models` to list available models in your environment.
+Use model IDs available via Copilot CLI. Run `copilot -i /models` to list available models in your environment.
 
 ## Configuration
 
@@ -79,7 +73,7 @@ const model = githubCopilot("gpt-5", {
 
 ### Custom tools
 
-Pass tools via provider settings using Copilot's `defineTool`:
+Pass tools via provider settings using Copilot's `defineTool`. Tool support varies by model; verify with Copilot CLI or documentation.
 
 ```typescript
 import { defineTool } from "@github/copilot-sdk";
@@ -113,6 +107,7 @@ Tests live in `tests/` (not colocated with source) to keep the published `src/` 
 - **Unsupported parameters** - `temperature`, `maxTokens`, `topP`, etc. are not supported by the Copilot CLI and will be ignored (warnings emitted)
 - **Structured outputs** - Native JSON schema support may be limited; consider prompt engineering for structured responses
 - **Session-based** - Each generate/stream creates a new session; no built-in multi-session continuity across separate AI SDK calls
+- **Model capabilities** - Tools, reasoning, and other features may vary by model; capabilities are determined by Copilot CLI
 
 ## Disclaimer
 
