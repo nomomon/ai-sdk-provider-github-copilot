@@ -1,6 +1,6 @@
 import type { LanguageModelV3Prompt } from "@ai-sdk/provider";
 import { describe, expect, it } from "vitest";
-import { convertToCopilotMessages } from "@/convert-to-copilot-messages.js";
+import { convertToCopilotMessages } from "@/conversion/convert-to-copilot-messages.js";
 
 describe("convertToCopilotMessages", () => {
   it("converts a simple user message to prompt format", () => {

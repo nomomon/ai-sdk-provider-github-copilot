@@ -10,10 +10,10 @@ export {
   isAbortError,
   isAuthenticationError,
 } from "./errors.js";
-export { GitHubCopilotLanguageModel } from "./github-copilot-language-model.js";
+export { GitHubCopilotLanguageModel } from "./model/github-copilot-language-model.js";
 export type {
   GitHubCopilotModelId,
   GitHubCopilotProvider,
-} from "./github-copilot-provider.js";
-export { createGitHubCopilot, githubCopilot } from "./github-copilot-provider.js";
-export type { GitHubCopilotProviderOptions, GitHubCopilotSettings } from "./types.js";
+} from "./provider/github-copilot-provider.js";
+export { createGitHubCopilot, githubCopilot } from "./provider/github-copilot-provider.js";
+export type { GitHubCopilotProviderOptions, GitHubCopilotSettings } from "./provider/types.js";

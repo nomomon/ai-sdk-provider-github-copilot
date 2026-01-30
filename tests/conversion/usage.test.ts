@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { type CopilotUsageEvent, convertCopilotUsage, createEmptyUsage } from "@/usage.js";
+import {
+  type CopilotUsageEvent,
+  convertCopilotUsage,
+  createEmptyUsage,
+} from "@/conversion/usage.js";
 
 describe("createEmptyUsage", () => {
   it("returns usage with zero tokens", () => {

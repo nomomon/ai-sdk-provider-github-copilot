@@ -8,9 +8,9 @@
 import type { LanguageModelV3StreamPart, LanguageModelV3Usage } from "@ai-sdk/provider";
 import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotSession, SessionEvent } from "@github/copilot-sdk";
-import { mapCopilotFinishReason } from "./map-copilot-finish-reason.js";
-import type { CopilotUsageEvent } from "./usage.js";
-import { convertCopilotUsage, createEmptyUsage } from "./usage.js";
+import { mapCopilotFinishReason } from "../conversion/map-copilot-finish-reason.js";
+import type { CopilotUsageEvent } from "../conversion/usage.js";
+import { convertCopilotUsage, createEmptyUsage } from "../conversion/usage.js";
 
 interface ToolState {
   name: string;

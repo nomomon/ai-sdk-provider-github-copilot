@@ -2,7 +2,7 @@ import type { LanguageModelV3, ProviderV3 } from "@ai-sdk/provider";
 import { NoSuchModelError } from "@ai-sdk/provider";
 import type { CopilotClient } from "@github/copilot-sdk";
 import { CopilotClient as CopilotClientClass } from "@github/copilot-sdk";
-import { GitHubCopilotLanguageModel } from "./github-copilot-language-model.js";
+import { GitHubCopilotLanguageModel } from "../model/github-copilot-language-model.js";
 import type { GitHubCopilotProviderOptions, GitHubCopilotSettings } from "./types.js";
 
 /**

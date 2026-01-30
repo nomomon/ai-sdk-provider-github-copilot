@@ -1,6 +1,6 @@
 import type { LanguageModelV3Prompt } from "@ai-sdk/provider";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { prepareSession } from "@/session-setup.js";
+import { prepareSession } from "@/model/session-setup.js";
 
 const mockSession = {
   sendAndWait: vi.fn(),

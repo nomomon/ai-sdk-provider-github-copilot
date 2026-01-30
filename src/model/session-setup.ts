@@ -11,7 +11,7 @@ import type {
   SharedV3Warning,
 } from "@ai-sdk/provider";
 import type { CopilotClient, SystemMessageConfig } from "@github/copilot-sdk";
-import { convertToCopilotMessages } from "./convert-to-copilot-messages.js";
+import { convertToCopilotMessages } from "../conversion/convert-to-copilot-messages.js";
 
 export interface SessionSetupInput {
   prompt: LanguageModelV3Prompt;

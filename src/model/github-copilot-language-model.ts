@@ -9,7 +9,13 @@ import type {
 } from "@ai-sdk/provider";
 import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotClient } from "@github/copilot-sdk";
-import { handleCopilotError, isAbortError } from "./errors.js";
+import { mapCopilotFinishReason } from "../conversion/map-copilot-finish-reason.js";
+import type { CopilotUsageEvent } from "../conversion/usage.js";
+import { convertCopilotUsage, createEmptyUsage } from "../conversion/usage.js";
+import { handleCopilotError, isAbortError } from "../errors.js";
+import type { GitHubCopilotSettings } from "../provider/types.js";
+import { createStreamEventHandler } from "../streaming/stream-event-handler.js";
+import { prepareSession } from "./session-setup.js";
 
 /** Default timeout (ms) for sendAndWait when not aborted. */
 const SEND_AND_WAIT_TIMEOUT_MS = 60_000;
@@ -23,13 +29,6 @@ function addAbortListener(signal: AbortSignal | undefined, onAbort: () => void):
   signal.addEventListener("abort", onAbort, { once: true });
   return () => signal.removeEventListener("abort", onAbort);
 }
-
-import { mapCopilotFinishReason } from "./map-copilot-finish-reason.js";
-import { prepareSession } from "./session-setup.js";
-import { createStreamEventHandler } from "./stream-event-handler.js";
-import type { GitHubCopilotSettings } from "./types.js";
-import type { CopilotUsageEvent } from "./usage.js";
-import { convertCopilotUsage, createEmptyUsage } from "./usage.js";
 
 export interface GitHubCopilotLanguageModelOptions {
   modelId: string;

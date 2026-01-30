@@ -1,6 +1,6 @@
 import type { CopilotClient } from "@github/copilot-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GitHubCopilotLanguageModel } from "@/github-copilot-language-model.js";
+import { GitHubCopilotLanguageModel } from "@/model/github-copilot-language-model.js";
 
 const mockSession = {
   sendAndWait: vi.fn(),

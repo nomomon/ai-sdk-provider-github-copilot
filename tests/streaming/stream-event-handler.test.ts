@@ -1,7 +1,7 @@
 import type { LanguageModelV3StreamPart } from "@ai-sdk/provider";
 import type { CopilotSession, SessionEvent } from "@github/copilot-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createStreamEventHandler } from "@/stream-event-handler.js";
+import { createStreamEventHandler } from "@/streaming/stream-event-handler.js";
 
 function createMockController() {
   const enqueued: unknown[] = [];
