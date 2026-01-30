@@ -5,6 +5,10 @@ const IMAGE_URL_WARNING =
 const IMAGE_BASE64_WARNING =
   "Base64/image data URLs require file paths. Write to temp file and pass path, or use attachments with path.";
 
+function isImagePart(part: { type: string }): part is { type: "image" } {
+  return part.type === "image";
+}
+
 export interface ConvertedCopilotMessage {
   prompt: string;
   systemMessage?: string;
@@ -57,7 +61,7 @@ export function convertToCopilotMessages(prompt: LanguageModelV3Prompt): Convert
               } else if (fileInfo.warning) {
                 warnings.push(fileInfo.warning);
               }
-            } else if ((part as { type?: string }).type === "image") {
+            } else if (isImagePart(part)) {
               warnings.push(IMAGE_BASE64_WARNING);
             }
           }
