@@ -11,6 +11,9 @@ import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotClient } from "@github/copilot-sdk";
 import { handleCopilotError, isAbortError } from "./errors.js";
 
+/** Default timeout (ms) for sendAndWait when not aborted. */
+const SEND_AND_WAIT_TIMEOUT_MS = 60_000;
+
 /**
  * Adds an abort listener to the signal and returns a cleanup function.
  * Call the returned function to remove the listener (e.g. in finally).
@@ -122,7 +125,7 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
     try {
       const result = await session.sendAndWait(
         { prompt, attachments },
-        options.abortSignal?.aborted ? 0 : 60_000,
+        options.abortSignal?.aborted ? 0 : SEND_AND_WAIT_TIMEOUT_MS,
       );
 
       const content: LanguageModelV3Content[] = [];
