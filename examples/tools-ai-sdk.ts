@@ -1,9 +1,10 @@
 /**
- * AI SDK tools example - using tool() with providerOptions bridge
+ * AI SDK tools example - call-level tools via tool() with providerOptions bridge
  *
- * The AI SDK does not pass the tool's execute function to providers.
- * Pass it via providerOptions['github-copilot'].execute so the provider
- * can use it as the Copilot handler.
+ * The AI SDK does not pass the tool's execute function to providers. Pass it
+ * via providerOptions['github-copilot'].execute so the provider can convert
+ * the tool and use it as the Copilot handler. These call-level tools are
+ * merged with any model-level tools (defineTool) before creating the session.
  *
  * Prerequisites:
  * - Copilot CLI installed and authenticated
@@ -11,7 +12,7 @@
  * Run: npm run example:tools-ai-sdk
  */
 
-import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
+import { copilotToolOptions, githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
 import { streamText, tool } from "ai";
 import { z } from "zod";
 
@@ -31,7 +32,7 @@ async function main() {
       city: z.string().describe("The city name"),
     }),
     execute,
-    providerOptions: { "github-copilot": { execute } },
+    providerOptions: copilotToolOptions(execute),
   });
 
   const result = streamText({

@@ -115,13 +115,12 @@ const model = githubCopilot("gpt-5", {
 });
 ```
 
-**2. AI SDK `tool()` with `providerOptions`** (call-level) — the AI SDK does not pass `execute` to providers. Pass it via `providerOptions['github-copilot'].execute` so the provider can convert the tool and use it as the Copilot handler:
+**2. AI SDK `tool()` with `providerOptions`** (call-level) — the AI SDK does not pass `execute` to providers. Use `copilotToolOptions(execute)` so the provider can convert the tool and use it as the Copilot handler:
 
 ```typescript
-import { tool } from "ai";
+import { copilotToolOptions, githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
+import { streamText, tool } from "ai";
 import { z } from "zod";
-import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
-import { streamText } from "ai";
 
 const execute = async ({ city }: { city: string }) => ({
   city,
@@ -135,7 +134,7 @@ const getWeather = tool({
     city: z.string().describe("The city name"),
   }),
   execute,
-  providerOptions: { "github-copilot": { execute } },
+  providerOptions: copilotToolOptions(execute),
 });
 
 const result = streamText({
