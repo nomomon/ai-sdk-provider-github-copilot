@@ -59,6 +59,15 @@ for await (const chunk of result.textStream) {
 
 Use model IDs available via Copilot CLI. Run `copilot -i /models` to list available models in your environment.
 
+## Examples
+
+| Script | Description |
+|--------|-------------|
+| `npm run example:basic` | Non-streaming `generateText` |
+| `npm run example:streaming` | Streaming `streamText` |
+| `npm run example:tools` | Model-level tools via Copilot `defineTool` |
+| `npm run example:tools-ai-sdk` | Call-level AI SDK `tool()` with `providerOptions` bridge |
+
 ## Configuration
 
 ### Provider settings
@@ -82,9 +91,9 @@ const model = githubCopilot("gpt-5", {
 
 ### Custom tools
 
-You can pass tools in two ways:
+Tools can be passed in two ways. When both are used, call-level tools are merged with model-level tools before creating the Copilot session.
 
-**1. Copilot's `defineTool`** (model settings) — use when configuring the model:
+**1. Copilot's `defineTool`** (model-level) — configure tools when creating the model:
 
 ```typescript
 import { defineTool } from "@github/copilot-sdk";
@@ -106,7 +115,7 @@ const model = githubCopilot("gpt-5", {
 });
 ```
 
-**2. AI SDK `tool()` with `providerOptions`** (call-level tools) — pass `execute` via `providerOptions['github-copilot']` so the provider can use it as the Copilot handler:
+**2. AI SDK `tool()` with `providerOptions`** (call-level) — the AI SDK does not pass `execute` to providers. Pass it via `providerOptions['github-copilot'].execute` so the provider can convert the tool and use it as the Copilot handler:
 
 ```typescript
 import { tool } from "ai";
