@@ -46,6 +46,7 @@
     "example:basic": "npm run build && npx tsx examples/basic-usage.ts",
     "example:streaming": "npm run build && npx tsx examples/streaming.ts",
     "example:tools": "npm run build && npx tsx examples/tools.ts",
+    "example:tools-ai-sdk": "npm run build && npx tsx examples/tools-ai-sdk.ts",
     "prepare": "lefthook install",
     "prepublishOnly": "npm run build"
   },

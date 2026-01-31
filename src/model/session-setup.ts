@@ -17,7 +17,10 @@ export interface SessionSetupInput {
   prompt: LanguageModelV3Prompt;
   options: LanguageModelV3CallOptions;
   streaming: boolean;
-  buildSessionConfig: (streaming: boolean) => Record<string, unknown>;
+  buildSessionConfig: (
+    streaming: boolean,
+    callOptions: LanguageModelV3CallOptions,
+  ) => Record<string, unknown>;
   generateWarnings: (options: LanguageModelV3CallOptions) => SharedV3Warning[];
   getClient: () => CopilotClient;
   systemMessageFromSettings?: SystemMessageConfig;
@@ -65,7 +68,7 @@ export async function prepareSession(input: SessionSetupInput): Promise<SessionS
   }
 
   const session = await client.createSession({
-    ...buildSessionConfig(streaming),
+    ...buildSessionConfig(streaming, options),
     systemMessage: systemMessage
       ? { mode: "append", content: systemMessage }
       : systemMessageFromSettings,

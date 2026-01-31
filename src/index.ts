@@ -11,6 +11,8 @@ export {
   isAuthenticationError,
 } from "./errors.js";
 export { GitHubCopilotLanguageModel } from "./model/github-copilot-language-model.js";
+export type { CopilotToolExecute } from "./provider/copilot-tool-options.js";
+export { copilotToolOptions } from "./provider/copilot-tool-options.js";
 export type {
   GitHubCopilotModelId,
   GitHubCopilotProvider,

@@ -9,6 +9,7 @@ import type {
 } from "@ai-sdk/provider";
 import { generateId } from "@ai-sdk/provider-utils";
 import type { CopilotClient } from "@github/copilot-sdk";
+import { convertAiSdkToolsToCopilotTools } from "../conversion/convert-ai-sdk-tools-to-copilot.js";
 import { mapCopilotFinishReason } from "../conversion/map-copilot-finish-reason.js";
 import type { CopilotUsageEvent } from "../conversion/usage.js";
 import { convertCopilotUsage, createEmptyUsage } from "../conversion/usage.js";
@@ -64,13 +65,19 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
     return this.settings.model ?? this.modelId;
   }
 
-  private buildSessionConfig(streaming: boolean) {
+  private buildSessionConfig(streaming: boolean, callOptions: LanguageModelV3CallOptions) {
+    const aiSdkTools = convertAiSdkToolsToCopilotTools(callOptions.tools);
+    const tools =
+      aiSdkTools.length > 0 || this.settings.tools?.length
+        ? [...(this.settings.tools ?? []), ...aiSdkTools]
+        : undefined;
+
     return {
       model: this.getEffectiveModel(),
       sessionId: this.settings.sessionId,
       streaming,
       systemMessage: this.settings.systemMessage,
-      tools: this.settings.tools,
+      tools,
       provider: this.settings.provider,
       workingDirectory: this.settings.workingDirectory,
     };
@@ -104,7 +111,7 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
       prompt: options.prompt,
       options,
       streaming,
-      buildSessionConfig: (s) => this.buildSessionConfig(s),
+      buildSessionConfig: (s, o) => this.buildSessionConfig(s, o),
       generateWarnings: (o) => this.generateWarnings(o),
       getClient: this.getClient,
       systemMessageFromSettings: this.settings.systemMessage,

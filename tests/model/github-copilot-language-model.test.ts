@@ -1,4 +1,6 @@
+import type { LanguageModelV3CallOptions } from "@ai-sdk/provider";
 import type { CopilotClient } from "@github/copilot-sdk";
+import { defineTool } from "@github/copilot-sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GitHubCopilotLanguageModel } from "@/model/github-copilot-language-model.js";
 
@@ -185,6 +187,129 @@ describe("GitHubCopilotLanguageModel", () => {
       });
 
       expect(mockSession.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe("tools merging", () => {
+    it("converts call-level AI SDK tools with providerOptions and passes to createSession", async () => {
+      const execute = async (args: { city: string }) => ({ city: args.city, temp: 22 });
+      mockSession.sendAndWait.mockResolvedValue({ data: {} });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      await model.doGenerate({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Weather in Tokyo?" }] }],
+        tools: [
+          {
+            type: "function",
+            name: "get_weather",
+            description: "Get weather for a city",
+            inputSchema: {
+              type: "object",
+              properties: { city: { type: "string", description: "City name" } },
+              required: ["city"],
+            },
+            providerOptions: { "github-copilot": { execute } },
+          },
+        ],
+      } as unknown as LanguageModelV3CallOptions);
+
+      const createSessionCall = mockClient.createSession.mock.calls[0][0];
+      expect(createSessionCall.tools).toBeDefined();
+      expect(createSessionCall.tools).toHaveLength(1);
+      expect(createSessionCall.tools[0].name).toBe("get_weather");
+      expect(createSessionCall.tools[0].description).toBe("Get weather for a city");
+    });
+
+    it("passes model-level tools to createSession when no call-level tools", async () => {
+      const modelTool = defineTool("lookup_issue", {
+        description: "Look up an issue",
+        parameters: { type: "object", properties: { id: { type: "string" } } },
+        handler: async () => ({}),
+      });
+      mockSession.sendAndWait.mockResolvedValue({ data: {} });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: { tools: [modelTool] },
+        getClient,
+      });
+
+      await model.doGenerate({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+      });
+
+      const createSessionCall = mockClient.createSession.mock.calls[0][0];
+      expect(createSessionCall.tools).toEqual([modelTool]);
+    });
+
+    it("merges model-level and call-level tools (model first, then AI SDK)", async () => {
+      const modelTool = defineTool("model_tool", {
+        description: "Model-level tool",
+        parameters: { type: "object" },
+        handler: async () => ({}),
+      });
+      const execute = async () => ({});
+      mockSession.sendAndWait.mockResolvedValue({ data: {} });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: { tools: [modelTool] },
+        getClient,
+      });
+
+      await model.doGenerate({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        tools: [
+          {
+            type: "function",
+            name: "call_tool",
+            description: "Call-level tool",
+            inputSchema: { type: "object" },
+            providerOptions: { "github-copilot": { execute } },
+          },
+        ],
+      } as unknown as LanguageModelV3CallOptions);
+
+      const createSessionCall = mockClient.createSession.mock.calls[0][0];
+      expect(createSessionCall.tools).toHaveLength(2);
+      expect(createSessionCall.tools[0]).toBe(modelTool);
+      expect(createSessionCall.tools[1].name).toBe("call_tool");
+    });
+
+    it("passes tools to createSession when doStream with call-level tools", async () => {
+      const execute = async () => ({});
+      mockSession.send.mockResolvedValue(undefined);
+      mockSession.on.mockImplementation((callback: (e: unknown) => void) => {
+        setTimeout(() => callback({ type: "session.idle" }), 0);
+      });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        tools: [
+          {
+            type: "function",
+            name: "stream_tool",
+            description: "Stream tool",
+            inputSchema: { type: "object" },
+            providerOptions: { "github-copilot": { execute } },
+          },
+        ],
+      } as unknown as LanguageModelV3CallOptions);
+
+      const createSessionCall = mockClient.createSession.mock.calls[0][0];
+      expect(createSessionCall.tools).toHaveLength(1);
+      expect(createSessionCall.tools[0].name).toBe("stream_tool");
     });
   });
 
