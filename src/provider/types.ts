@@ -29,9 +29,10 @@ export interface GitHubCopilotSettings {
 
   /**
    * Custom tools exposed to the Copilot CLI.
-   * Use Copilot's defineTool; tool inputs are objects with string/number/nested values.
+   * Use Copilot's defineTool.
    */
-  tools?: Tool<{ [key: string]: string | number | boolean | object }>[];
+  // @biome-ignore lint/suspicious/noExplicitAny: it's ok to use any here
+  tools?: Tool<any>[];
 
   /**
    * Custom provider configuration (BYOK - Bring Your Own Key).
