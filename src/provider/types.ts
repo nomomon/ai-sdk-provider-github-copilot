@@ -31,8 +31,7 @@ export interface GitHubCopilotSettings {
    * Custom tools exposed to the Copilot CLI.
    * Use Copilot's defineTool.
    */
-  // @biome-ignore lint/suspicious/noExplicitAny: it's ok to use any here
-  tools?: Tool<any>[];
+  tools?: Tool<unknown>[];
 
   /**
    * Custom provider configuration (BYOK - Bring Your Own Key).

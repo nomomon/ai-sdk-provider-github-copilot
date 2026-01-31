@@ -23,6 +23,9 @@ describe("copilotToolOptions", () => {
     const execute = (args: { x: number }) => ({ doubled: args.x * 2 });
     const result = copilotToolOptions(execute);
 
-    expect(result["github-copilot"].execute({ x: 5 })).toEqual({ doubled: 10 });
+    const opts = result["github-copilot"] as unknown as {
+      execute: (args: { x: number }) => unknown;
+    };
+    expect(opts.execute({ x: 5 })).toEqual({ doubled: 10 });
   });
 });
