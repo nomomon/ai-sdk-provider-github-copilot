@@ -27,9 +27,10 @@ describe("prepareSession", () => {
     const prompt: LanguageModelV3Prompt = [
       { role: "user", content: [{ type: "text", text: "Hello" }] },
     ];
+    const options = { prompt };
     const result = await prepareSession({
       prompt,
-      options: { prompt },
+      options,
       streaming: false,
       buildSessionConfig: () => ({ model: "gpt-4", streaming: false }),
       generateWarnings: () => [],
@@ -41,25 +42,26 @@ describe("prepareSession", () => {
   });
 
   it("merges buildSessionConfig with streaming flag", async () => {
-    const buildSessionConfig = vi.fn((streaming: boolean) => ({
-      model: "gpt-4",
-      streaming,
-      customKey: "value",
-    }));
-
     const prompt: LanguageModelV3Prompt = [
       { role: "user", content: [{ type: "text", text: "Hi" }] },
     ];
+    const options = { prompt };
+    const buildSessionConfig = vi.fn((_streaming: boolean, _callOptions: typeof options) => ({
+      model: "gpt-4",
+      streaming: true,
+      customKey: "value",
+    }));
+
     await prepareSession({
       prompt,
-      options: { prompt },
+      options,
       streaming: true,
       buildSessionConfig,
       generateWarnings: () => [],
       getClient: () => mockClient as never,
     });
 
-    expect(buildSessionConfig).toHaveBeenCalledWith(true);
+    expect(buildSessionConfig).toHaveBeenCalledWith(true, options);
     expect(mockClient.createSession).toHaveBeenCalledWith(
       expect.objectContaining({
         model: "gpt-4",

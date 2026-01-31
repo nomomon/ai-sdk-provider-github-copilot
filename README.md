@@ -82,10 +82,9 @@ const model = githubCopilot("gpt-5", {
 
 ### Custom tools
 
-> [!NOTE]
-> AI SDK tools (using `tool()` with Zod schemas and `execute`) are not yet supported. The provider does not receive the `execute` function from the AI SDK, while Copilot requires a `handler` for each tool. The schema mapping (name, description, inputSchema) is compatible; the blocker is the missing execute/handler bridge. See [examples/tools.ts](examples/tools.ts) for how to define tools using the native Copilot API.
+You can pass tools in two ways:
 
-Pass tools via provider settings using Copilot's `defineTool`. Tool support varies by model; verify with Copilot CLI or documentation.
+**1. Copilot's `defineTool`** (model settings) — use when configuring the model:
 
 ```typescript
 import { defineTool } from "@github/copilot-sdk";
@@ -106,6 +105,38 @@ const model = githubCopilot("gpt-5", {
   ],
 });
 ```
+
+**2. AI SDK `tool()` with `providerOptions`** (call-level tools) — pass `execute` via `providerOptions['github-copilot']` so the provider can use it as the Copilot handler:
+
+```typescript
+import { tool } from "ai";
+import { z } from "zod";
+import { githubCopilot } from "@nomomon/ai-sdk-provider-github-copilot";
+import { streamText } from "ai";
+
+const execute = async ({ city }: { city: string }) => ({
+  city,
+  temperature: `${20 + Math.floor(Math.random() * 15)}°C`,
+  condition: "sunny",
+});
+
+const getWeather = tool({
+  description: "Get the current weather for a city",
+  inputSchema: z.object({
+    city: z.string().describe("The city name"),
+  }),
+  execute,
+  providerOptions: { "github-copilot": { execute } },
+});
+
+const result = streamText({
+  model: githubCopilot("gpt-5-mini"),
+  tools: { get_weather: getWeather },
+  prompt: "What's the weather in Tokyo?",
+});
+```
+
+Tool support varies by model; verify with Copilot CLI or documentation.
 
 ## Development
 
