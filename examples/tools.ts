@@ -1,6 +1,9 @@
 /**
  * Tools example - using tools with GitHub Copilot
  *
+ * NOTE: AI SDK tools (tool() with Zod schemas and execute) are not yet supported.
+ * Use Copilot's defineTool with parameters and handler instead, as shown below.
+ *
  * Prerequisites:
  * - Copilot CLI installed and authenticated
  *
