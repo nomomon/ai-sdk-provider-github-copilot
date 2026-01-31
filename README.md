@@ -83,7 +83,7 @@ const model = githubCopilot("gpt-5", {
 ### Custom tools
 
 > [!NOTE]
-> AI SDK tools (using `tool()` with Zod schemas and `execute`) are not supported. Copilot expects tools in its own format: `defineTool` with JSON Schema parameters and a handler. The two APIs are structurally different and cannot be mapped automatically. See [examples/tools.ts](examples/tools.ts) for how to define tools using the native Copilot API.
+> AI SDK tools (using `tool()` with Zod schemas and `execute`) are not yet supported. The provider does not receive the `execute` function from the AI SDK, while Copilot requires a `handler` for each tool. The schema mapping (name, description, inputSchema) is compatible; the blocker is the missing execute/handler bridge. See [examples/tools.ts](examples/tools.ts) for how to define tools using the native Copilot API.
 
 Pass tools via provider settings using Copilot's `defineTool`. Tool support varies by model; verify with Copilot CLI or documentation.
 
