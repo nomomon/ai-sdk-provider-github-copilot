@@ -21,6 +21,7 @@ interface ToolState {
 export interface StreamEventHandlerParams {
   controller: ReadableStreamDefaultController<LanguageModelV3StreamPart>;
   session: CopilotSession;
+  onDone?: () => void;
 }
 
 /**
@@ -30,12 +31,13 @@ export interface StreamEventHandlerParams {
 export function createStreamEventHandler(
   params: StreamEventHandlerParams,
 ): (event: SessionEvent) => void {
-  const { controller, session } = params;
+  const { controller, session, onDone } = params;
   let textPartId: string | undefined;
   let usage: LanguageModelV3Usage = createEmptyUsage();
   const toolStates = new Map<string, ToolState>();
 
   const finishStream = () => {
+    onDone?.();
     if (textPartId) {
       controller.enqueue({ type: "text-end", id: textPartId });
     }
@@ -49,6 +51,7 @@ export function createStreamEventHandler(
   };
 
   const handleError = (message: string) => {
+    onDone?.();
     controller.enqueue({
       type: "error",
       error: new Error(message),

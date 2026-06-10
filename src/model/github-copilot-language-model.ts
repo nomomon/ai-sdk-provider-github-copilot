@@ -192,6 +192,13 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
       session.abort();
       abortController.abort(options.abortSignal?.reason);
     });
+    let abortListenerRemoved = false;
+    const removeAbortListenerOnce = () => {
+      if (!abortListenerRemoved) {
+        abortListenerRemoved = true;
+        removeAbortListener();
+      }
+    };
 
     const stream = new ReadableStream<LanguageModelV3StreamPart>({
       start: async (controller) => {
@@ -201,11 +208,13 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
           const handleEvent = createStreamEventHandler({
             controller,
             session,
+            onDone: removeAbortListenerOnce,
           });
           session.on(handleEvent);
 
           await session.send({ prompt, attachments });
         } catch (error: unknown) {
+          removeAbortListenerOnce();
           if (isAbortError(error)) {
             controller.enqueue({
               type: "error",
@@ -216,12 +225,10 @@ export class GitHubCopilotLanguageModel implements LanguageModelV3 {
           }
           controller.close();
           await session.destroy();
-        } finally {
-          removeAbortListener();
         }
       },
       cancel: () => {
-        removeAbortListener();
+        removeAbortListenerOnce();
       },
     });
 

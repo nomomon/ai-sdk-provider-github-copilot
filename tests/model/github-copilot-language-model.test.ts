@@ -452,6 +452,48 @@ describe("GitHubCopilotLanguageModel", () => {
       expect(done).toBe(true);
     });
 
+    it("keeps abort signal active after session.send resolves until stream finishes", async () => {
+      const abortController = new AbortController();
+      const abortReason = new Error("User cancelled");
+      let resolveSend: (() => void) | undefined;
+      let emitSessionEvent: ((event: unknown) => void) | undefined;
+
+      mockSession.send.mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveSend = resolve;
+          }),
+      );
+      mockSession.on.mockImplementation((callback: (event: unknown) => void) => {
+        emitSessionEvent = callback;
+      });
+
+      const model = new GitHubCopilotLanguageModel({
+        modelId: "gpt-4",
+        settings: {},
+        getClient,
+      });
+
+      const { stream } = await model.doStream({
+        prompt: [{ role: "user", content: [{ type: "text", text: "Hi" }] }],
+        abortSignal: abortController.signal,
+      });
+
+      const reader = stream.getReader();
+      await reader.read();
+      resolveSend?.();
+      await Promise.resolve();
+
+      abortController.abort(abortReason);
+
+      expect(mockSession.abort).toHaveBeenCalledTimes(1);
+
+      emitSessionEvent?.({ type: "session.idle", data: {} });
+      while (!(await reader.read()).done) {
+        // Drain the stream after the synthetic idle event closes it.
+      }
+    });
+
     it("handles pre-aborted signal when doStream starts", async () => {
       const abortController = new AbortController();
       abortController.abort(new Error("Pre-aborted"));
